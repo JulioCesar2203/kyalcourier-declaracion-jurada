@@ -169,24 +169,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function generarPDF() {
+    Swal.fire({
+      title: 'Generando PDF...',
+      text: 'Por favor espere un momento.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     const nombre = nombreInput.value;
     const dni = dniInput.value;
     const distrito = distritoInput.value;
     const direccion = direccionInput.value;
 
     const meses = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
+      "enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     ];
     const fechaActual = new Date();
     const fechaTexto = `${fechaActual.getDate()} de ${meses[fechaActual.getMonth()]} del ${fechaActual.getFullYear()}`;
@@ -223,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const htmlTemplate = `
-      <div style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px;">
+      <div id="pdfRealContainer" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px; background-color: white; width: 100%; max-width: 800px; margin: 0 auto;">
         <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">DECLARACIÓN JURADA DE VALOR</h3>
         <p style="margin-bottom: 5px;">Señores<br>
         <b>SUNAT (SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACIÓN TRIBUTARIA)</b><br>
@@ -270,16 +269,24 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    const elementoVisible = document.createElement('div');
+    elementoVisible.innerHTML = htmlTemplate;
+
+    mainFormContainer.classList.add("d-none");
+    document.body.appendChild(elementoVisible);
+    window.scrollTo(0, 0);
+
     const opt = {
       margin: 10,
       filename: `kyalcourier-declaracion-jurada_${fechaArchivo}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(htmlTemplate).save().then(() => {
-      mainFormContainer.classList.add("d-none");
+    html2pdf().set(opt).from(elementoVisible).save().then(() => {
+      document.body.removeChild(elementoVisible);
+      Swal.close();
       successContainer.classList.remove("d-none");
     });
   }
