@@ -76,12 +76,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (e.target.classList.contains("input-descripcion")) {
       e.target.value = e.target.value.replace(
         /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-%]/g,
-        "",
+        ""
       );
     } else if (e.target.classList.contains("input-marca")) {
       e.target.value = e.target.value.replace(
         /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&\-]/g,
-        "",
+        ""
       );
     } else if (e.target.classList.contains("input-talla")) {
       e.target.value = e.target.value
@@ -164,11 +164,11 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonText: "Entendido",
       });
     } else {
-      generarWord();
+      generarPDF();
     }
   });
 
-  function generarWord() {
+  function generarPDF() {
     const nombre = nombreInput.value;
     const dni = dniInput.value;
     const distrito = distritoInput.value;
@@ -223,9 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const htmlTemplate = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head><meta charset='utf-8'><title>Declaración Jurada</title></head>
-      <body style="font-family: 'Times New Roman', Times, serif; font-size: 11pt;">
+      <div style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px;">
         <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">DECLARACIÓN JURADA DE VALOR</h3>
         <p style="margin-bottom: 5px;">Señores<br>
         <b>SUNAT (SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACIÓN TRIBUTARIA)</b><br>
@@ -269,32 +267,20 @@ document.addEventListener("DOMContentLoaded", () => {
             </td>
           </tr>
         </table>
-      </body>
-      </html>
+      </div>
     `;
 
-    const blob = new Blob(["\ufeff", htmlTemplate], {
-      type: "application/msword;charset=utf-8",
+    const opt = {
+      margin: 10,
+      filename: `kyalcourier-declaracion-jurada_${fechaArchivo}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(htmlTemplate).save().then(() => {
+      mainFormContainer.classList.add("d-none");
+      successContainer.classList.remove("d-none");
     });
-
-    if (navigator.msSaveBlob) {
-      navigator.msSaveBlob(blob, `kyalcourier-declaracion-jurada_${fechaArchivo}.doc`);
-    } else {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `kyalcourier-declaracion-jurada_${fechaArchivo}.doc`;
-
-      document.body.appendChild(link);
-      link.click();
-
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }, 100);
-    }
-
-    mainFormContainer.classList.add("d-none");
-    successContainer.classList.remove("d-none");
   }
 });
