@@ -274,15 +274,25 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     const blob = new Blob(["\ufeff", htmlTemplate], {
-      type: "application/msword",
+      type: "application/msword;charset=utf-8",
     });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `kyalcourier-declaracion-jurada_${fechaArchivo}.doc`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    if (navigator.msSaveBlob) {
+      navigator.msSaveBlob(blob, `kyalcourier-declaracion-jurada_${fechaArchivo}.doc`);
+    } else {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `kyalcourier-declaracion-jurada_${fechaArchivo}.doc`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    }
 
     mainFormContainer.classList.add("d-none");
     successContainer.classList.remove("d-none");
