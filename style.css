@@ -1,0 +1,77 @@
+body {
+  background-color: #f4f6f9 !important;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e9ecef !important;
+  overflow: hidden;
+}
+
+.nav-pills .nav-link {
+  color: #6c757d;
+  background-color: transparent;
+  border: 1px solid #dee2e6;
+  margin-right: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #244bbb !important;
+  color: white !important;
+  border-color: #244bbb !important;
+}
+
+.nav-pills .nav-link:disabled {
+  color: #adb5bd;
+  border-color: #e9ecef;
+  background-color: transparent;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: #333;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  border: 1px solid #dce0e4;
+  color: #495057;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.form-control::placeholder {
+  color: #adb5bd;
+  font-weight: 300;
+}
+
+.form-control:focus {
+  border-color: #244bbb;
+  box-shadow: 0 0 0 0.2rem rgba(36, 75, 187, 0.1);
+}
+
+.btn-primary {
+  background-color: #244bbb !important;
+  border-color: #244bbb !important;
+  border-radius: 10px !important;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #1c3c97 !important;
+  transform: translateY(-1px);
+}
+
+.was-validated .form-control:invalid {
+  border-color: #dc3545;
+  background-image: none !important;
+}
