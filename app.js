@@ -19,6 +19,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const mainFormContainer = document.getElementById("mainFormContainer");
   const successContainer = document.getElementById("successContainer");
 
+  datosForm.reset();
+  productosForm.reset();
+  datosForm.classList.remove("was-validated");
+  productosForm.classList.remove("was-validated");
+
+  const productosIniciales = document.querySelectorAll(".producto-item");
+  for (let i = 1; i < productosIniciales.length; i++) {
+    productosIniciales[i].remove();
+  }
+
+  if (productosIniciales[0]) {
+    productosIniciales[0].style.backgroundColor = "#f8fafc";
+  }
+
+  if (document.querySelector(".input-valor-total")) {
+    document.querySelector(".input-valor-total").value = "";
+  }
+
+  totalGeneralDisplay.textContent = "0.00";
+  tabProductosEl.setAttribute("disabled", "true");
+  tabDatos.show();
+  successContainer.classList.add("d-none");
+  mainFormContainer.classList.remove("d-none");
+
   dniInput.addEventListener("input", function () {
     this.value = this.value.replace(/[^0-9]/g, "");
   });
@@ -58,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
   btnRecargar.addEventListener("click", () => {
     datosForm.reset();
     datosForm.classList.remove("was-validated");
-
     productosForm.reset();
     productosForm.classList.remove("was-validated");
 
@@ -69,15 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector(".titulo-producto").textContent = "Producto 1";
     document.querySelector(".input-valor-total").value = "";
-
     totalGeneralDisplay.textContent = "0.00";
-
     tabProductosEl.setAttribute("disabled", "true");
     tabDatos.show();
-
     successContainer.classList.add("d-none");
     mainFormContainer.classList.remove("d-none");
-
     window.scrollTo(0, 0);
   });
 
@@ -136,9 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    productosForm.classList.remove("was-validated");
     const productos = document.querySelectorAll(".producto-item");
     const nuevoProducto = productos[0].cloneNode(true);
+    nuevoProducto.style.backgroundColor = "#f8fafc";
     nuevoProducto.querySelectorAll("input").forEach((input) => (input.value = ""));
     listaProductos.appendChild(nuevoProducto);
     actualizarNumeracion();
