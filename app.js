@@ -113,6 +113,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   btnAgregarProducto.addEventListener("click", () => {
+    const cantidadProductos = document.querySelectorAll(".producto-item").length;
+
+    if (cantidadProductos >= 20) {
+      Swal.fire({
+        icon: "warning",
+        title: "Límite alcanzado",
+        text: "Por políticas de la declaración, solo se permite un máximo de 20 productos.",
+        confirmButtonColor: "#244bbb",
+        confirmButtonText: "Entendido",
+      });
+      return;
+    }
+
     if (!productosForm.checkValidity()) {
       productosForm.classList.add("was-validated");
       Swal.fire({
@@ -222,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const htmlTemplate = `
-      <div id="pdfRealContainer" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px; background-color: white; width: 100%; max-width: 800px; margin: 0 auto;">
+      <div id="pdfRealContainer" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px; background-color: white; width: 800px; max-width: none; margin: 0 auto;">
         <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">DECLARACIÓN JURADA DE VALOR</h3>
         <p style="margin-bottom: 5px;">Señores<br>
         <b>SUNAT (SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACIÓN TRIBUTARIA)</b><br>
@@ -271,6 +284,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const elementoVisible = document.createElement('div');
     elementoVisible.innerHTML = htmlTemplate;
+    elementoVisible.style.position = 'absolute';
+    elementoVisible.style.top = '0';
+    elementoVisible.style.left = '0';
+    elementoVisible.style.width = '800px';
+    elementoVisible.style.backgroundColor = 'white';
 
     mainFormContainer.classList.add("d-none");
     document.body.appendChild(elementoVisible);
@@ -280,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
       margin: 10,
       filename: `kyalcourier-declaracion-jurada_${fechaArchivo}.pdf`,
       image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, windowWidth: 800, width: 800 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
