@@ -56,7 +56,29 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   btnRecargar.addEventListener("click", () => {
-    location.reload();
+    datosForm.reset();
+    datosForm.classList.remove("was-validated");
+
+    productosForm.reset();
+    productosForm.classList.remove("was-validated");
+
+    const productos = document.querySelectorAll(".producto-item");
+    for (let i = 1; i < productos.length; i++) {
+      productos[i].remove();
+    }
+
+    document.querySelector(".titulo-producto").textContent = "Producto 1";
+    document.querySelector(".input-valor-total").value = "";
+
+    totalGeneralDisplay.textContent = "0.00";
+
+    tabProductosEl.setAttribute("disabled", "true");
+    tabDatos.show();
+
+    successContainer.classList.add("d-none");
+    mainFormContainer.classList.remove("d-none");
+
+    window.scrollTo(0, 0);
   });
 
   function calcularTotalGeneral() {
@@ -76,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
       e.target.value = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&\-]/g, "");
     } else if (e.target.classList.contains("input-talla")) {
       e.target.value = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.\-]/g, "").toUpperCase();
+    } else if (e.target.classList.contains("input-unidades")) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+    } else if (e.target.classList.contains("input-valor-unidad")) {
+      e.target.value = e.target.value.replace(/[^0-9.]/g, "");
+      if ((e.target.value.match(/\./g) || []).length > 1) {
+        e.target.value = e.target.value.substring(0, e.target.value.length - 1);
+      }
     }
 
     if (e.target.classList.contains("input-unidades") || e.target.classList.contains("input-valor-unidad")) {
@@ -107,18 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!productosForm.checkValidity()) {
-      productosForm.classList.add("was-validated");
-      Swal.fire({
-        icon: "warning",
-        title: "Complete el producto actual",
-        text: "Por favor, llene todos los campos obligatorios antes de añadir uno nuevo.",
-        confirmButtonColor: "#244bbb",
-        confirmButtonText: "Entendido",
-      });
-      return;
-    }
-
     productosForm.classList.remove("was-validated");
     const productos = document.querySelectorAll(".producto-item");
     const nuevoProducto = productos[0].cloneNode(true);
@@ -134,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.target.closest(".producto-item").remove();
         actualizarNumeracion();
         calcularTotalGeneral();
+        productosForm.classList.remove("was-validated");
       } else {
         Swal.fire({
           icon: "error",
@@ -151,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
       Swal.fire({
         icon: "warning",
         title: "Faltan datos",
-        text: "Por favor, complete todos los campos obligatorios de los productos.",
+        text: "Por favor, complete todos los campos obligatorios de los productos o elimine los que estén vacíos.",
         confirmButtonColor: "#244bbb",
         confirmButtonText: "Entendido",
       });
