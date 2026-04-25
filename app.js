@@ -68,47 +68,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   listaProductos.addEventListener("input", (e) => {
-    if (
-      e.target.classList.contains("input-pais") ||
-      e.target.classList.contains("input-color")
-    ) {
+    if (e.target.classList.contains("input-pais") || e.target.classList.contains("input-color")) {
       e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
     } else if (e.target.classList.contains("input-descripcion")) {
-      e.target.value = e.target.value.replace(
-        /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-%]/g,
-        ""
-      );
+      e.target.value = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,\-%]/g, "");
     } else if (e.target.classList.contains("input-marca")) {
-      e.target.value = e.target.value.replace(
-        /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&\-]/g,
-        ""
-      );
+      e.target.value = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s&\-]/g, "");
     } else if (e.target.classList.contains("input-talla")) {
-      e.target.value = e.target.value
-        .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.\-]/g, "")
-        .toUpperCase();
+      e.target.value = e.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.\-]/g, "").toUpperCase();
     }
 
-    if (
-      e.target.classList.contains("input-unidades") ||
-      e.target.classList.contains("input-valor-unidad")
-    ) {
+    if (e.target.classList.contains("input-unidades") || e.target.classList.contains("input-valor-unidad")) {
       const card = e.target.closest(".producto-item");
-      const unidades =
-        parseFloat(card.querySelector(".input-unidades").value) || 0;
-      const precio =
-        parseFloat(card.querySelector(".input-valor-unidad").value) || 0;
-      card.querySelector(".input-valor-total").value = (
-        unidades * precio
-      ).toFixed(2);
+      const unidades = parseFloat(card.querySelector(".input-unidades").value) || 0;
+      const precio = parseFloat(card.querySelector(".input-valor-unidad").value) || 0;
+      card.querySelector(".input-valor-total").value = (unidades * precio).toFixed(2);
       calcularTotalGeneral();
     }
   });
 
   function actualizarNumeracion() {
     document.querySelectorAll(".producto-item").forEach((item, index) => {
-      item.querySelector(".titulo-producto").textContent =
-        `Producto ${index + 1}`;
+      item.querySelector(".titulo-producto").textContent = `Producto ${index + 1}`;
     });
   }
 
@@ -141,9 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     productosForm.classList.remove("was-validated");
     const productos = document.querySelectorAll(".producto-item");
     const nuevoProducto = productos[0].cloneNode(true);
-    nuevoProducto
-      .querySelectorAll("input")
-      .forEach((input) => (input.value = ""));
+    nuevoProducto.querySelectorAll("input").forEach((input) => (input.value = ""));
     listaProductos.appendChild(nuevoProducto);
     actualizarNumeracion();
     calcularTotalGeneral();
@@ -177,18 +156,16 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmButtonText: "Entendido",
       });
     } else {
-      generarPDF();
+      generarPDFNativo();
     }
   });
 
-  function generarPDF() {
+  function generarPDFNativo() {
     Swal.fire({
       title: 'Generando PDF...',
-      text: 'Por favor espere un momento.',
+      text: 'Calculando saltos de página y dibujando tabla...',
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
+      didOpen: () => { Swal.showLoading(); }
     });
 
     const nombre = nombreInput.value;
@@ -196,15 +173,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const distrito = distritoInput.value;
     const direccion = direccionInput.value;
 
-    const meses = [
-      "enero", "febrero", "marzo", "abril", "mayo", "junio",
-      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-    ];
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const fechaActual = new Date();
     const fechaTexto = `${fechaActual.getDate()} de ${meses[fechaActual.getMonth()]} del ${fechaActual.getFullYear()}`;
     const fechaArchivo = `${fechaActual.getFullYear()}-${String(fechaActual.getMonth() + 1).padStart(2, "0")}-${String(fechaActual.getDate()).padStart(2, "0")}`;
 
-    let filasTabla = "";
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(13);
+    doc.text("DECLARACIÓN JURADA DE VALOR", 105, 25, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.setFont("times", "normal");
+    doc.text("Señores", 15, 40);
+    doc.setFont("times", "bold");
+    doc.text("SUNAT (SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACIÓN TRIBUTARIA)", 15, 47);
+    doc.text("INTENDENCIA DE LA ADUANA AEREA DEL CALLAO", 15, 54);
+
+    doc.setFont("times", "normal");
+    const parrafo1 = `Yo, ${nombre}, identificado con DNI ${dni}, domiciliado en ${direccion}, distrito de ${distrito}, provincia de Lima, departamento de Lima, en mérito a la Ley del Procedimiento Administrativo General, Ley N° 27444, declaro el valor FOB estimado de la(s) mercancía(s), así como los datos siguientes:`;
+
+    const lineasParrafo1 = doc.splitTextToSize(parrafo1, 180);
+    doc.text(lineasParrafo1, 15, 65);
+
+    let posicionY_Tabla = 65 + (lineasParrafo1.length * 6) + 5;
+
+    const bodyDatos = [];
     let totalSuma = 0;
 
     document.querySelectorAll(".producto-item").forEach((item, index) => {
@@ -219,93 +215,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
       totalSuma += parseFloat(vTot);
 
-      filasTabla += `
-        <tr>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${index + 1}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${desc}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${pais}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${marca}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${talla}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${color}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${unid}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${parseFloat(vUnit).toFixed(2)}</td>
-          <td style="border: 1px solid black; text-align: center; padding: 4px;">${parseFloat(vTot).toFixed(2)}</td>
-        </tr>
-      `;
+      bodyDatos.push([
+        index + 1, desc, pais, marca, talla, color, unid, parseFloat(vUnit).toFixed(2), parseFloat(vTot).toFixed(2)
+      ]);
     });
 
-    const htmlTemplate = `
-      <div id="pdfRealContainer" style="font-family: 'Times New Roman', Times, serif; font-size: 11pt; padding: 30px; background-color: white; width: 800px; max-width: none; margin: 0 auto;">
-        <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">DECLARACIÓN JURADA DE VALOR</h3>
-        <p style="margin-bottom: 5px;">Señores<br>
-        <b>SUNAT (SUPERINTENDENCIA NACIONAL DE ADUANAS Y DE ADMINISTRACIÓN TRIBUTARIA)</b><br>
-        <b>INTENDENCIA DE LA ADUANA AEREA DEL CALLAO</b></p>
-        <p style="text-align: justify; margin-bottom: 20px;">
-        Yo, <b>${nombre}</b>, identificado con DNI <b>${dni}</b>, domiciliado en <b>${direccion}</b>, distrito de <b>${distrito}</b>, provincia de Lima, departamento de Lima, en mérito a la Ley del Procedimiento Administrativo General, Ley N° 27444, declaro el valor FOB estimado de la(s) mercancía(s), así como los datos siguientes:
-        </p>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9pt;">
-          <thead>
-            <tr>
-              <th style="border: 1px solid black; padding: 4px;">N° de Serie</th>
-              <th style="border: 1px solid black; padding: 4px;">Descripción</th>
-              <th style="border: 1px solid black; padding: 4px;">País de Origen</th>
-              <th style="border: 1px solid black; padding: 4px;">Marca</th>
-              <th style="border: 1px solid black; padding: 4px;">Talla</th>
-              <th style="border: 1px solid black; padding: 4px;">Color</th>
-              <th style="border: 1px solid black; padding: 4px;">Unid.</th>
-              <th style="border: 1px solid black; padding: 4px;">Valor Unit.</th>
-              <th style="border: 1px solid black; padding: 4px;">Valor Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filasTabla}
-            <tr>
-              <td colspan="8" style="border: 1px solid black; text-align: right; font-weight: bold; padding: 4px;">TOTAL:</td>
-              <td style="border: 1px solid black; text-align: center; padding: 4px;">${totalSuma.toFixed(2)}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="text-align: justify; margin-bottom: 30px;">
-        Declaro bajo Juramento que los presentes datos obedecen a la verdad, sometiéndome a las sanciones administrativas, civiles y penales que corresponden en caso de falsedad de los mismos.
-        </p>
-        <p style="text-align: right; margin-bottom: 60px;">
-        Lima, ${fechaTexto}
-        </p>
-        <table style="width: 100%; border: none;">
-          <tr>
-            <td style="width: 60%;"></td>
-            <td style="width: 40%; text-align: center; border-top: 1px solid black;">
-              <b>${nombre}</b><br>DNI ${dni}
-            </td>
-          </tr>
-        </table>
-      </div>
-    `;
+    bodyDatos.push([
+      { content: 'TOTAL:', colSpan: 8, styles: { halign: 'right', fontStyle: 'bold' } },
+      { content: totalSuma.toFixed(2), styles: { halign: 'center', fontStyle: 'bold' } }
+    ]);
 
-    const elementoVisible = document.createElement('div');
-    elementoVisible.innerHTML = htmlTemplate;
-    elementoVisible.style.position = 'absolute';
-    elementoVisible.style.top = '0';
-    elementoVisible.style.left = '0';
-    elementoVisible.style.width = '800px';
-    elementoVisible.style.backgroundColor = 'white';
+    doc.autoTable({
+      startY: posicionY_Tabla,
+      head: [['N° Serie', 'Descripción', 'País Origen', 'Marca', 'Talla', 'Color', 'Unid.', 'Valor Unit.', 'Valor Total']],
+      body: bodyDatos,
+      theme: 'grid',
+      styles: { font: 'times', fontSize: 9, halign: 'center', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.1 },
+      headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold' },
+      margin: { top: 20, right: 15, bottom: 20, left: 15 },
+    });
 
+    let finalY = doc.lastAutoTable.finalY + 15;
+
+    if (finalY > 240) {
+      doc.addPage();
+      finalY = 25;
+    }
+
+    const parrafo2 = "Declaro bajo Juramento que los presentes datos obedecen a la verdad, sometiéndome a las sanciones administrativas, civiles y penales que corresponden en caso de falsedad de los mismos.";
+    const lineasParrafo2 = doc.splitTextToSize(parrafo2, 180);
+    doc.text(lineasParrafo2, 15, finalY);
+
+    finalY += (lineasParrafo2.length * 6) + 15;
+
+    doc.text(`Lima, ${fechaTexto}`, 195, finalY, { align: "right" });
+
+    finalY += 35;
+
+    doc.line(100, finalY, 195, finalY);
+    doc.setFont("times", "bold");
+    doc.text(nombre, 147.5, finalY + 6, { align: "center" });
+    doc.setFont("times", "normal");
+    doc.text(`DNI ${dni}`, 147.5, finalY + 12, { align: "center" });
+
+    doc.save(`kyalcourier-declaracion-jurada_${fechaArchivo}.pdf`);
+
+    Swal.close();
     mainFormContainer.classList.add("d-none");
-    document.body.appendChild(elementoVisible);
-    window.scrollTo(0, 0);
-
-    const opt = {
-      margin: 10,
-      filename: `kyalcourier-declaracion-jurada_${fechaArchivo}.pdf`,
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, windowWidth: 800, width: 800 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(elementoVisible).save().then(() => {
-      document.body.removeChild(elementoVisible);
-      Swal.close();
-      successContainer.classList.remove("d-none");
-    });
+    successContainer.classList.remove("d-none");
   }
 });
