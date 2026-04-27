@@ -274,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let finalY = doc.lastAutoTable.finalY + 15;
 
-    if (finalY > 240) {
+    if (finalY > 200) {
       doc.addPage();
       finalY = 25;
     }
